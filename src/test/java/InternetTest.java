@@ -1,12 +1,19 @@
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.PageFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import pages.*;
+import pages.HomeFactoryPage;
+import pages.LoginFactoryPage;
+import pages.StaticHomePage;
+import pages.StaticLoginPage;
+
+import java.util.concurrent.TimeUnit;
+
+import static helpers.DriverSingleton.getDriver;
+import static helpers.DriverSingleton.quit;
 
 public class InternetTest {
 
@@ -20,18 +27,16 @@ public class InternetTest {
 
     @BeforeMethod
     public void setup() {
-        driver = new FirefoxDriver();
+       getDriver().manage().window().maximize();
 
-        driver.manage().window().maximize();
+        getDriver().manage().timeouts().implicitlyWait(4, TimeUnit.SECONDS);
+        getDriver().manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS);
+        getDriver().manage().timeouts().setScriptTimeout(10, TimeUnit.SECONDS);
 
-//        driver.manage().timeouts().implicitlyWait(4, TimeUnit.SECONDS);
-//        driver.manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS);
-//        driver.manage().timeouts().setScriptTimeout(10, TimeUnit.SECONDS);
-
-        driver.get(BASE_URL);
-        driver.findElement(By.linkText("Form Authentication")).click();
-        loginFactoryPage = PageFactory.initElements(driver, LoginFactoryPage.class);
-        logoutPageFactory = PageFactory.initElements(driver, HomeFactoryPage.class);
+        getDriver().get(BASE_URL);
+        getDriver().findElement(By.linkText("Form Authentication")).click();
+        loginFactoryPage = PageFactory.initElements(getDriver(), LoginFactoryPage.class);
+        logoutPageFactory = PageFactory.initElements(getDriver(), HomeFactoryPage.class);
 
 
 
@@ -39,21 +44,13 @@ public class InternetTest {
 
     @AfterMethod
     public void tearDown() {
-        driver.quit();
+        quit();
     }
 
-    @Test
-    public void loginTest() {
-        loginPage.login(USER_NAME, PASSWORD);
-        Assert.assertTrue(driver.findElement(By.cssSelector("#flash.success")).isDisplayed());
-        Assert.assertTrue(driver.findElement(By.cssSelector("a[href='/logout']")).isDisplayed());
-    }
 
     @Test
     public void loginFactoryTest() {
         loginFactoryPage.login(USER_NAME, PASSWORD);
-//        Assert.assertTrue(driver.findElement(By.cssSelector("#flash.success")).isDisplayed());
-//        Assert.assertTrue(driver.findElement(By.cssSelector("a[href='/logout']")).isDisplayed());
         Assert.assertTrue(logoutPageFactory.getFlashPage().isDisplayed());
         Assert.assertTrue(logoutPageFactory.getLogoutButton().isDisplayed());
     }
@@ -61,29 +58,13 @@ public class InternetTest {
     @Test
     public void logoutFactoryTest() {
         loginFactoryPage.login(USER_NAME, PASSWORD);
-//        Assert.assertTrue(logoutPageFactory.getFlashPage().isDisplayed());
-//        Assert.assertTrue(logoutPageFactory.getLogoutButton().isDisplayed());
         logoutPageFactory.logout();
         Assert.assertTrue(loginFactoryPage.getFlashPage().isDisplayed());
         Assert.assertTrue(loginFactoryPage.getLoginButton().isDisplayed());
 
     }
 
-    @Test
-    public void logoutFactoryFlowTest() {
-        loginFlowPage
-                .login(driver, USER_NAME, PASSWORD)
-                .logout(driver)
-                .verifyOnLoginPage(driver);
-    }
-
-    @Test
-    public void uiMapLoginTest() {
-        uiMapLoginPage.login(USER_NAME,PASSWORD);
-        Assert.assertTrue(driver.findElement(By.cssSelector("#flash.success")).isDisplayed());
-    }
-
-    @Test
+   @Test
     public void staticLogin() {
         StaticLoginPage.login(USER_NAME, PASSWORD);
         Assert.assertTrue(driver.findElement(StaticHomePage.FLASH).isDisplayed());
