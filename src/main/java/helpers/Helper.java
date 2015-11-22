@@ -1,32 +1,19 @@
 package helpers;
 
-import org.openqa.selenium.Alert;
 import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-/**
- * Created by Admin on 26.10.2015.
- */
 public class Helper {
 
     public static void check(WebElement checkbox) {
-//        if (!checkbox.isSelected()) {
-//            checkbox.click();
-//        }
-
         setCheckboxTo(checkbox, true);
     }
 
     public static void unCheck(WebElement checkbox) {
-//        if (checkbox.isSelected()) {
-//            checkbox.click();
-//        }
-
         setCheckboxTo(checkbox, false);
     }
 

@@ -27,14 +27,13 @@ public class InternetTest {
 
     @BeforeMethod
     public void setup() {
-       getDriver().manage().window().maximize();
+        getDriver().get(BASE_URL);
+        getDriver().manage().window().maximize();
 
         getDriver().manage().timeouts().implicitlyWait(4, TimeUnit.SECONDS);
         getDriver().manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS);
         getDriver().manage().timeouts().setScriptTimeout(10, TimeUnit.SECONDS);
 
-        getDriver().get(BASE_URL);
-        getDriver().findElement(By.linkText("Form Authentication")).click();
         loginFactoryPage = PageFactory.initElements(getDriver(), LoginFactoryPage.class);
         logoutPageFactory = PageFactory.initElements(getDriver(), HomeFactoryPage.class);
 
@@ -50,6 +49,7 @@ public class InternetTest {
 
     @Test
     public void loginFactoryTest() {
+        getDriver().findElement(By.linkText("Form Authentication")).click();
         loginFactoryPage.login(USER_NAME, PASSWORD);
         Assert.assertTrue(logoutPageFactory.getFlashPage().isDisplayed());
         Assert.assertTrue(logoutPageFactory.getLogoutButton().isDisplayed());
@@ -57,6 +57,7 @@ public class InternetTest {
 
     @Test
     public void logoutFactoryTest() {
+        getDriver().findElement(By.linkText("Form Authentication")).click();
         loginFactoryPage.login(USER_NAME, PASSWORD);
         logoutPageFactory.logout();
         Assert.assertTrue(loginFactoryPage.getFlashPage().isDisplayed());
@@ -66,7 +67,8 @@ public class InternetTest {
 
    @Test
     public void staticLogin() {
+        getDriver().findElement(By.linkText("Form Authentication")).click();
         StaticLoginPage.login(USER_NAME, PASSWORD);
-        Assert.assertTrue(driver.findElement(StaticHomePage.FLASH).isDisplayed());
+        Assert.assertTrue(getDriver().findElement(StaticHomePage.FLASH).isDisplayed());
     }
 }

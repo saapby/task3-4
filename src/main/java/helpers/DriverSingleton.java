@@ -7,13 +7,9 @@ import org.openqa.selenium.ie.InternetExplorerDriver;
 
 import java.util.concurrent.TimeUnit;
 
-/**
- * Created by Admin on 04.11.2015.
- */
 public class DriverSingleton {
     private static WebDriver driver;
     private DriverSingleton() {
-
     }
 
     public static WebDriver getDriver() {

@@ -1,15 +1,12 @@
 package helpers;
 
 import org.openqa.selenium.By;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-/**
- * Created by Admin on 04.11.2015.
- */
 public class Locators {
+
     private final static Properties LOCATORS;
 
     private enum LocatorType {
@@ -60,7 +57,6 @@ public class Locators {
             default:
                 throw new UnsupportedOperationException("Unsupported locator used "
                         + locatorType);
-
         }
     }
 }
