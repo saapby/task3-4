@@ -1,28 +1,32 @@
+import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import pages.HomeFactoryPage;
-import pages.LoginFactoryPage;
-import pages.StaticHomePage;
-import pages.StaticLoginPage;
+import pages.HomePage;
+import pages.JavaScriptAlertsPage;
+import pages.LoginPage;
 
 import java.util.concurrent.TimeUnit;
 
 import static helpers.DriverSingleton.getDriver;
 import static helpers.DriverSingleton.quit;
+import static helpers.Helper.isAlertPresent;
 
 public class InternetTest {
 
     private WebDriver driver;
-    private LoginFactoryPage loginFactoryPage;
-    private HomeFactoryPage logoutPageFactory;
-    private final static String BASE_URL = "https://the-internet.herokuapp.com";
+    private final static String BASE_URL = "http://the-internet.herokuapp.com";
     private final String USER_NAME = "tomsmith";
     private final String PASSWORD = "SuperSecretPassword!";
+    private final String TEXT_ENTER = "any text";
+
+    private LoginPage loginPage;
+    private HomePage homePage;
+    private JavaScriptAlertsPage javaScriptAlertsPage;
 
 
     @BeforeMethod
@@ -34,11 +38,9 @@ public class InternetTest {
         getDriver().manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS);
         getDriver().manage().timeouts().setScriptTimeout(10, TimeUnit.SECONDS);
 
-        loginFactoryPage = PageFactory.initElements(getDriver(), LoginFactoryPage.class);
-        logoutPageFactory = PageFactory.initElements(getDriver(), HomeFactoryPage.class);
-
-
-
+        loginPage = new LoginPage();
+        homePage = new HomePage();
+        javaScriptAlertsPage = new JavaScriptAlertsPage();
     }
 
     @AfterMethod
@@ -46,59 +48,101 @@ public class InternetTest {
         quit();
     }
 
-
-    @Test
-    public void loginFactoryTest() {
-        getDriver().findElement(By.linkText("Form Authentication")).click();
-        loginFactoryPage.login(USER_NAME, PASSWORD);
-        Assert.assertTrue(logoutPageFactory.getFlashPage().isDisplayed());
-        Assert.assertTrue(logoutPageFactory.getLogoutButton().isDisplayed());
-    }
-
-    @Test
-    public void logoutFactoryTest() {
-        getDriver().findElement(By.linkText("Form Authentication")).click();
-        loginFactoryPage.login(USER_NAME, PASSWORD);
-        logoutPageFactory.logout();
-        Assert.assertTrue(loginFactoryPage.getFlashPage().isDisplayed());
-        Assert.assertTrue(loginFactoryPage.getLoginButton().isDisplayed());
-
-    }
-
+    //TODO Only login
    @Test
-    public void staticLogin() {
+    public void staticLoginTest() {
         getDriver().findElement(By.linkText("Form Authentication")).click();
-        StaticLoginPage.login(USER_NAME, PASSWORD);
-        Assert.assertTrue(getDriver().findElement(StaticHomePage.FLASH).isDisplayed());
-
-
-
+        loginPage.login(USER_NAME, PASSWORD);
+        Assert.assertTrue(getDriver().findElement(homePage.FLASH).isDisplayed());
     }
 
+    //TODO login and logout
     @Test
-    public void staticLogout() {
+    public void staticLogoutTest() {
         getDriver().findElement(By.linkText("Form Authentication")).click();
-        StaticLoginPage.login(USER_NAME, PASSWORD);
+        loginPage.login(USER_NAME, PASSWORD);
+        Assert.assertTrue(getDriver().findElement(homePage.FLASH).isDisplayed());
+        homePage.logout();
 
-        Assert.assertTrue(getDriver().findElement(StaticHomePage.FLASH).isDisplayed());
+//        TODO line for test asserts
+//
+//        getDriver().findElement(By.cssSelector("#username")).sendKeys(USER_NAME);
+//        getDriver().findElement(By.cssSelector("#password")).sendKeys("SuperSecretPassword!");
 
-        StaticHomePage.logout();
+        Assert.assertEquals("http://the-internet.herokuapp.com/login", getDriver().getCurrentUrl());
+        Assert.assertTrue(getDriver().findElement(loginPage.FLASH).getText().contains("You logged out of the secure area!"), "text is not found, ou are not logged out");
 
-//        Assert.assertTrue(getDriver().findElement(StaticHomePage.FLASH).isDisplayed());
+        Assert.assertTrue(getDriver().findElement(loginPage.USER_NAME_FIELD).isDisplayed(), "username field is invisible");
+        Assert.assertTrue(getDriver().findElement(loginPage.PASSWORD_FIELD).isDisplayed(), "password field is invisible");
 
-        //        line for test asserts
-//        driver.findElement(By.cssSelector("#username")).sendKeys("tomsmith");
-//        driver.findElement(By.cssSelector("#password")).sendKeys("SuperSecretPassword!");
+        Assert.assertEquals(getDriver().findElement(loginPage.USER_NAME_FIELD).getAttribute("value"), "", "field username includes text"); //test
+        Assert.assertEquals(getDriver().findElement(loginPage.PASSWORD_FIELD).getAttribute("value"), "", "field password includes text"); //test
+    }
 
-        Assert.assertEquals("http://the-internet.herokuapp.com/login", driver.getCurrentUrl());
-        Assert.assertTrue(driver.findElement(By.cssSelector("#flash")).getText().contains("You logged out of the secure area!"), "text is not found, ou are not logged out");
+    //TODO JavaScript Alerts jsAlertsTest
+    @Test
+    public void jsAlertsTest() throws InterruptedException {
+        Assert.assertTrue(getDriver().findElement(By.linkText("JavaScript Alerts")).isDisplayed(), "JavaScript Alerts is invisible");
 
-        Assert.assertTrue(driver.findElement(By.cssSelector("input[id='username']")).isDisplayed(), "username field is invisible"); //test
-        Assert.assertTrue(driver.findElement(By.cssSelector("input[id='password']")).isDisplayed(), "password field is invisible");
+        getDriver().findElement(By.linkText("JavaScript Alerts")).click();
 
-        Assert.assertEquals(driver.findElement(By.cssSelector("input[id='username']")).getAttribute("value"), "", "field username includes text");
-        Assert.assertEquals(driver.findElement(By.cssSelector("input[id='password']")).getAttribute("value"), "", "field password includes text");
+        javaScriptAlertsPage.click(javaScriptAlertsPage.JS_ALERTS);
+
+//        Alert alert = getDriver().switchTo().alert();
+        Assert.assertEquals(javaScriptAlertsPage.jsAletr().getText(), "I am a JS Alert");
+//        Thread.sleep(3000);
+        javaScriptAlertsPage.jsAletr().accept();
+        Assert.assertFalse(isAlertPresent(getDriver()), "Alert is present");
+//        Thread.sleep(3000);
+        Assert.assertEquals(getDriver().findElement(javaScriptAlertsPage.RESULT).getText(), "You successfuly clicked an alert");
+    }
+
+    //TODO JavaScript Alerts jsConfirmTest
+    @Test
+    public void jsConfirmTest() throws InterruptedException {
+        Assert.assertTrue(getDriver().findElement(By.linkText("JavaScript Alerts")).isDisplayed(), "JavaScript Alerts is invisible");
+
+        getDriver().findElement(By.linkText("JavaScript Alerts")).click();
+        javaScriptAlertsPage.click(javaScriptAlertsPage.JS_CONFIRM);
+
+        Assert.assertEquals(javaScriptAlertsPage.jsAletr().getText(), "I am a JS Confirm");
+//        Thread.sleep(3000);
+
+        javaScriptAlertsPage.jsAletr().accept();
+
+        Assert.assertFalse(isAlertPresent(getDriver()), "Alert is present");
+//        Thread.sleep(3000);
+        Assert.assertEquals(getDriver().findElement(javaScriptAlertsPage.RESULT).getText(), "You clicked: Ok");
+
+        javaScriptAlertsPage.click(javaScriptAlertsPage.JS_CONFIRM);
+//        Thread.sleep(3000);
+        javaScriptAlertsPage.jsAletr().dismiss();
+
+        Assert.assertFalse(isAlertPresent(getDriver()), "Alert is present");
+//        Thread.sleep(3000);
+        Assert.assertEquals(getDriver().findElement(javaScriptAlertsPage.RESULT).getText(), "You clicked: Cancel");
+    }
+
+    //TODO JavaScript Alerts jsPromptTest
+    @Test
+    public void jsPromptTest() {
+        Assert.assertTrue(getDriver().findElement(By.linkText("JavaScript Alerts")).isDisplayed(), "JavaScript Alerts is invisible");
+
+        getDriver().findElement(By.linkText("JavaScript Alerts")).click();
+        javaScriptAlertsPage.click(javaScriptAlertsPage.JS_PROMPT);
+        Alert alert = getDriver().switchTo().alert();
+
+        Assert.assertEquals(alert.getText(), "I am a JS Confirm");
+//        Thread.sleep(3000);
+        alert.sendKeys(TEXT_ENTER);
+        alert.accept();
 
 
+
+
+        alert.accept();
+
+        Assert.assertFalse(isAlertPresent(driver), "Alert is present");
+        Assert.assertEquals(driver.findElement(By.id("result")).getText(), "You entered: " + TEXT_ENTER);
     }
 }
