@@ -130,19 +130,24 @@ public class InternetTest {
 
         getDriver().findElement(By.linkText("JavaScript Alerts")).click();
         javaScriptAlertsPage.click(javaScriptAlertsPage.JS_PROMPT);
-        Alert alert = getDriver().switchTo().alert();
 
-        Assert.assertEquals(alert.getText(), "I am a JS Confirm");
+        Assert.assertEquals(javaScriptAlertsPage.jsAletr().getText(), "I am a JS prompt");
+
 //        Thread.sleep(3000);
-        alert.sendKeys(TEXT_ENTER);
-        alert.accept();
+        javaScriptAlertsPage.jsAletr().sendKeys(TEXT_ENTER);
+        javaScriptAlertsPage.jsAletr().accept();
 
+        Assert.assertFalse(isAlertPresent(getDriver()), "Alert is present");
+        Assert.assertEquals(getDriver().findElement(javaScriptAlertsPage.RESULT).getText(), "You entered: " + TEXT_ENTER);
 
+        javaScriptAlertsPage.click(javaScriptAlertsPage.JS_PROMPT);
 
+        Assert.assertEquals(javaScriptAlertsPage.jsAletr().getText(), "I am a JS prompt");
 
-        alert.accept();
+        javaScriptAlertsPage.jsAletr().sendKeys(TEXT_ENTER);
+        javaScriptAlertsPage.jsAletr().dismiss();
 
-        Assert.assertFalse(isAlertPresent(driver), "Alert is present");
-        Assert.assertEquals(driver.findElement(By.id("result")).getText(), "You entered: " + TEXT_ENTER);
+        Assert.assertFalse(isAlertPresent(getDriver()), "Alert is present");
+        Assert.assertEquals(getDriver().findElement(javaScriptAlertsPage.RESULT).getText(), "You entered: null");
     }
 }
