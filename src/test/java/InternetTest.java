@@ -70,5 +70,35 @@ public class InternetTest {
         getDriver().findElement(By.linkText("Form Authentication")).click();
         StaticLoginPage.login(USER_NAME, PASSWORD);
         Assert.assertTrue(getDriver().findElement(StaticHomePage.FLASH).isDisplayed());
+
+
+
+    }
+
+    @Test
+    public void staticLogout() {
+        getDriver().findElement(By.linkText("Form Authentication")).click();
+        StaticLoginPage.login(USER_NAME, PASSWORD);
+
+        Assert.assertTrue(getDriver().findElement(StaticHomePage.FLASH).isDisplayed());
+
+        StaticHomePage.logout();
+
+//        Assert.assertTrue(getDriver().findElement(StaticHomePage.FLASH).isDisplayed());
+
+        //        line for test asserts
+//        driver.findElement(By.cssSelector("#username")).sendKeys("tomsmith");
+//        driver.findElement(By.cssSelector("#password")).sendKeys("SuperSecretPassword!");
+
+        Assert.assertEquals("http://the-internet.herokuapp.com/login", driver.getCurrentUrl());
+        Assert.assertTrue(driver.findElement(By.cssSelector("#flash")).getText().contains("You logged out of the secure area!"), "text is not found, ou are not logged out");
+
+        Assert.assertTrue(driver.findElement(By.cssSelector("input[id='username']")).isDisplayed(), "username field is invisible"); //test
+        Assert.assertTrue(driver.findElement(By.cssSelector("input[id='password']")).isDisplayed(), "password field is invisible");
+
+        Assert.assertEquals(driver.findElement(By.cssSelector("input[id='username']")).getAttribute("value"), "", "field username includes text");
+        Assert.assertEquals(driver.findElement(By.cssSelector("input[id='password']")).getAttribute("value"), "", "field password includes text");
+
+
     }
 }
